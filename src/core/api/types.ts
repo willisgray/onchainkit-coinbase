@@ -251,30 +251,24 @@ export type BuildMintTransactionResponse = MintTransaction | APIError;
 /**
  * Note: exported as public Type
  */
-export type GetPortfolioTokenBalancesParams = {
+export type GetPortfoliosParams = {
   addresses: Address[] | null | undefined;
 };
 
 /**
  * Note: exported as public Type
  */
+export type GetPortfoliosResponse = {
+  portfolios: PortfolioTokenBalances[];
+};
+
 export type PortfolioTokenBalances = {
   address: Address;
   portfolioBalanceInUsd: number;
   tokenBalances: PortfolioTokenWithFiatValue[];
 };
 
-/**
- * Note: exported as public Type
- */
 export type PortfolioTokenWithFiatValue = Token & {
   cryptoBalance: number;
   fiatBalance: number;
-};
-
-/**
- * Note: exported as public Type
- */
-export type GetPortfoliosAPIResponse = {
-  portfolios: PortfolioTokenBalances[];
 };
