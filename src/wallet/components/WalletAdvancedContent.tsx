@@ -1,4 +1,7 @@
+import { MobileTray } from '@/internal/components/MobileTray';
 import { background, border, cn, text } from '@/styles/theme';
+import { useBreakpoints } from '@/ui-react/internal/hooks/useBreakpoints';
+import { useCallback } from 'react';
 import { WALLET_ADVANCED_DEFAULT_SWAPPABLE_TOKENS } from '../constants';
 import type { WalletAdvancedReact } from '../types';
 import { useWalletAdvancedContext } from './WalletAdvancedProvider';
@@ -10,36 +13,32 @@ export function WalletAdvancedContent({
   children,
   swappableTokens,
 }: WalletAdvancedReact) {
+  const breakpoint = useBreakpoints();
+
   const {
-    isSubComponentClosing,
+    isSubComponentOpen,
     setIsSubComponentOpen,
+    isSubComponentClosing,
     setIsSubComponentClosing,
+    handleClose,
   } = useWalletContext();
+
   const { showQr, showSwap, tokenBalances, animations } =
     useWalletAdvancedContext();
 
-  return (
-    <div
-      data-testid="ockWalletAdvancedContent"
-      className={cn(
-        background.default,
-        border.radius,
-        border.lineDefault,
-        'my-1.5 h-auto w-88',
-        'flex items-center justify-center',
-        animations.container,
-      )}
-      onAnimationEnd={() => {
-        if (isSubComponentClosing) {
-          setIsSubComponentOpen(false);
-          setIsSubComponentClosing(false);
-        }
-      }}
-    >
+  const handleAnimationEnd = useCallback(() => {
+    if (isSubComponentClosing) {
+      setIsSubComponentOpen(false);
+      setIsSubComponentClosing(false);
+    }
+  }, [isSubComponentClosing, setIsSubComponentOpen, setIsSubComponentClosing]);
+
+  const content = (
+    <>
       <div
         className={cn(
           'flex flex-col items-center justify-center',
-          'h-120 w-88',
+          'h-120 w-full',
           showQr ? '' : 'hidden',
         )}
       >
@@ -48,7 +47,7 @@ export function WalletAdvancedContent({
       <div
         className={cn(
           'flex flex-col items-center justify-center',
-          'h-120 w-88',
+          'h-120 w-full',
           showSwap ? '' : 'hidden',
         )}
       >
@@ -75,13 +74,49 @@ export function WalletAdvancedContent({
       <div
         className={cn(
           'flex flex-col items-center justify-between',
-          'h-120 w-88',
+          'h-120 w-full',
           'px-4 py-3',
           showQr || showSwap ? 'hidden' : '',
         )}
       >
         {children}
       </div>
+    </>
+  );
+
+  if (breakpoint === 'sm') {
+    return (
+      <MobileTray
+        isOpen={isSubComponentOpen}
+        onOverlayClick={handleClose}
+        onEscKeyPress={handleClose}
+        onAnimationEnd={handleAnimationEnd}
+        animation={{
+          tray: animations.mobileContainer,
+          overlay: animations.mobileContainerOverlay,
+        }}
+      >
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          {content}
+        </div>
+      </MobileTray>
+    );
+  }
+
+  return (
+    <div
+      data-testid="ockWalletAdvancedContent"
+      className={cn(
+        background.default,
+        border.radius,
+        border.lineDefault,
+        'my-1.5 h-auto w-88',
+        'flex items-center justify-center',
+        animations.container,
+      )}
+      onAnimationEnd={handleAnimationEnd}
+    >
+      {content}
     </div>
   );
 }
