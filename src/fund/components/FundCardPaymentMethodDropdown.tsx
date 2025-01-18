@@ -1,4 +1,5 @@
 import { isApplePaySupported } from '@/buy/utils/isApplePaySupported';
+import { Skeleton } from '@/internal/components/Skeleton';
 import { useOutsideClick } from '@/ui-react/internal/hooks/useOutsideClick';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { background, border, cn } from '../../styles/theme';
@@ -10,8 +11,6 @@ import { FundCardPaymentMethodSelectRow } from './FundCardPaymentMethodSelectRow
 import { FundCardPaymentMethodSelectorToggle } from './FundCardPaymentMethodSelectorToggle';
 import { useFundContext } from './FundCardProvider';
 
-const MIN_AMOUNT_FOR_CARD_PAYMENTS = 5;
-
 export function FundCardPaymentMethodDropdown({
   className,
 }: FundCardPaymentMethodDropdownPropsReact) {
@@ -22,6 +21,7 @@ export function FundCardPaymentMethodDropdown({
     setSelectedPaymentMethod,
     paymentMethods,
     fundAmountFiat,
+    paymentMethodsLoading,
   } = useFundContext();
 
   const filteredPaymentMethods = useMemo(() => {
@@ -32,11 +32,31 @@ export function FundCardPaymentMethodDropdown({
 
   const isPaymentMethodDisabled = useCallback(
     (method: PaymentMethod) => {
+      if (!fundAmountFiat) {
+        return false;
+      }
+
       const amount = Number(fundAmountFiat);
-      return (
-        (method.id === 'APPLE_PAY' || method.id === 'ACH_BANK_ACCOUNT') &&
-        amount < MIN_AMOUNT_FOR_CARD_PAYMENTS
+
+      return Boolean(
+        (method.minAmount && amount < method.minAmount) ||
+          (method.maxAmount && amount > method.maxAmount),
       );
+    },
+    [fundAmountFiat],
+  );
+
+  const getPaymentMethodDisabledReason = useCallback(
+    (method: PaymentMethod) => {
+      const amount = Number(fundAmountFiat);
+
+      if (method.minAmount && amount < method.minAmount) {
+        return `Minimum amount of $${method.minAmount} required`;
+      }
+
+      if (method.maxAmount && amount > method.maxAmount) {
+        return `Maximum amount allowed is $${method.maxAmount}`;
+      }
     },
     [fundAmountFiat],
   );
@@ -99,12 +119,16 @@ export function FundCardPaymentMethodDropdown({
       data-testid="ockFundCardPaymentMethodDropdownContainer"
       onKeyUp={handleEscKeyPress}
     >
-      <FundCardPaymentMethodSelectorToggle
-        ref={buttonRef}
-        onClick={handleToggle}
-        isOpen={isOpen}
-        paymentMethod={selectedPaymentMethod || filteredPaymentMethods[0]}
-      />
+      {paymentMethodsLoading ? (
+        <Skeleton className="h-12 w-full" />
+      ) : (
+        <FundCardPaymentMethodSelectorToggle
+          ref={buttonRef}
+          onClick={handleToggle}
+          isOpen={isOpen}
+          paymentMethod={selectedPaymentMethod || filteredPaymentMethods[0]}
+        />
+      )}
       {isOpen && (
         <div
           ref={dropdownRef}
@@ -126,7 +150,7 @@ export function FundCardPaymentMethodDropdown({
                   disabled={isDisabled}
                   disabledReason={
                     isDisabled
-                      ? `Minimum amount of $${MIN_AMOUNT_FOR_CARD_PAYMENTS} required`
+                      ? getPaymentMethodDisabledReason(paymentMethod)
                       : undefined
                   }
                 />

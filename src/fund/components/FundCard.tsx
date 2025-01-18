@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTheme } from '../../core-react/internal/hooks/useTheme';
 import { background, border, cn, color, text } from '../../styles/theme';
-import { DEFAULT_PAYMENT_METHODS } from '../constants';
 import { useFundCardSetupOnrampEventListeners } from '../hooks/useFundCardSetupOnrampEventListeners';
 import type { FundCardPropsReact } from '../types';
 import FundCardAmountInput from './FundCardAmountInput';
@@ -30,7 +29,6 @@ export function FundCard({
   return (
     <FundCardProvider
       asset={assetSymbol}
-      paymentMethods={DEFAULT_PAYMENT_METHODS}
       headerText={headerText}
       buttonText={buttonText}
       country={country}
