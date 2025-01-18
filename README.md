@@ -74,5 +74,4 @@ For documentation and guides, visit [onchainkit.xyz](https://onchainkit.xyz/).
 </a>
 
 ## 🌊 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
