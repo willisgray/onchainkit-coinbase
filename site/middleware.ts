@@ -13,6 +13,7 @@ const BLOCKED_COUNTRIES = [
   'UNKNOWN',
 ];
 
+
 export const config = {
   matcher: ['/'],
 };
