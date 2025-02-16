@@ -1,2 +1,2 @@
 // 🌲☀🌲
-export { Buy } from './components/Buy';
+export { Buy } from './components/Buy_new';
